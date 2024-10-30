@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Fotos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding-top: 100px;
+            text-align: center;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .header form {
+            margin: 0 5px;
+        }
+        .header button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .header button:hover input {
+            background-color: #45a049;
+        }
+        .gallery-section {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            justify-content: start;
+        }
+        .photo-container {
+            position: relative;
+            display: inline-block;
+        }
+        .gallery img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .checkbox {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            z-index: 1;
+            transform: scale(1.3);
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+        }
+        h2 {
+            margin: 20px 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Galería de Fotos</h1>
+        
+        <!-- Formulario de carga de fotos -->
+        <form method="POST" action="/upload_photo" enctype="multipart/form-data">
+            <input type="file" name="photo" accept="image/*" required>
+            <button type="submit">Subir Foto</button>
+        </form>
+
+        <!-- Botón de descarga -->
+        <form id="downloadForm" method="POST" action="/download_photos">
+            <button type="submit">Descargar Fotos Seleccionadas</button>
+        </form>
+    </div>
+
+    <div class="gallery-container">
+        {% for date, photos in grouped_photos.items() %}
+        <div class="gallery-section">
+            <h2>{{ date[:4] }}-{{ date[4:6] }}-{{ date[6:8] }}</h2>
+            <div class="gallery">
+                {% for photo in photos %}
+                <div class="photo-container">
+                    <input type="checkbox" class="checkbox" name="selected_photos" value="{{ photo[1] }}" form="downloadForm">
+                    <a href="{{ url_for('uploaded_file', filename=photo[1]) }}">
+                        <img src="{{ url_for('uploaded_thumbnail', filename=photo[1]) }}" alt="{{ photo[1] }}">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').onsubmit = function() {
+            setTimeout(function() {
+                document.querySelectorAll('.checkbox').forEach(function(checkbox) {
+                    checkbox.checked = false;
+                });
+            }, 500);
+        };
+    </script>
+</body>
+</html>
